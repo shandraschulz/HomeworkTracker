@@ -65,6 +65,9 @@ services:
       
       # Service definition
       - "traefik.http.services.homework.loadbalancer.server.port=80"
+      
+      # Specify which network Traefik should use
+      - "traefik.docker.network=traefik"
 
 networks:
   homework-internal:

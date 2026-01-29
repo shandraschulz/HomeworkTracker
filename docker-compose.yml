@@ -57,6 +57,7 @@ services:
       - "traefik.http.routers.homework.rule=Host(`${DOMAIN:-homework.jkbell.net}`)"
       - "traefik.http.routers.homework.entrypoints=web"
       - "traefik.http.services.homework.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik"
 
 networks:
   homework-internal:
