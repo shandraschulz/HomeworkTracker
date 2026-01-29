@@ -1,0 +1,69 @@
+# Docker Compose for PRODUCTION (Portainer Repository Deployment)
+# This file is used when deploying via Portainer's Git Repository option
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: homework-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-homework}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-homework_tracker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - homework-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-homework} -d ${POSTGRES_DB:-homework_tracker}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: homework-backend
+    restart: always
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homework}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-homework_tracker}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://homework.jkbell.net}
+    networks:
+      - homework-internal
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Nginx Frontend with Traefik labels
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: homework-frontend
+    restart: always
+    networks:
+      - homework-internal
+      - traefik
+    depends_on:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homework.rule=Host(`${DOMAIN:-homework.jkbell.net}`)"
+      - "traefik.http.routers.homework.entrypoints=web"
+      - "traefik.http.services.homework.loadbalancer.server.port=80"
+
+networks:
+  homework-internal:
+    driver: bridge
+  traefik:
+    name: traefik
+    external: true
+
+volumes:
+  postgres_data:
