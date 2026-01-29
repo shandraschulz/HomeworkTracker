@@ -1,0 +1,293 @@
+:root{
+  --bg: #fbf7f5;
+  --text: #2f2f2f;
+
+  --pink1: #f6b8c7;
+  --pink2: #f9d7df;
+
+  --sage: #a8c3b0;
+  --sageDeep: #6f9c84;
+
+  --card: #ffffffcc;
+  --border: #eadfdf;
+  --shadow: rgba(0,0,0,0.06);
+}
+
+body{
+  background: radial-gradient(circle at 20% 0%, var(--pink2), transparent 50%),
+              radial-gradient(circle at 90% 10%, #d7efe1, transparent 45%),
+              var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.navbar{
+  background: linear-gradient(90deg, var(--pink1), var(--pink2));
+  border-bottom: 2px solid var(--border);
+}
+
+.soft-card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.class-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  align-items:center;
+}
+
+.class-tab{
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: .35rem .75rem;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: transform .06s ease, background .15s ease;
+  user-select:none;
+}
+.class-tab:hover{ transform: translateY(-1px); }
+.class-tab.active{
+  background: var(--sage);
+  border-color: #9ab7a3;
+  font-weight: 650;
+}
+
+.add-class{ width: 260px; max-width: 48vw; }
+
+.btn-ghost{
+  background: rgba(255,255,255,0.65);
+  border: 1px solid rgba(255,255,255,0.8);
+  color: var(--text);
+}
+.btn-ghost:hover{
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,1);
+}
+
+/* Soft secondary button used across dashboard actions
+   - visible soft border
+   - very light / transparent default background
+   - subtle sage-tinted background, border and text on hover/focus
+   - override Bootstrap blue active/focus states */
+.btn-secondary-soft{
+  background: rgba(255,255,255,0.85);
+  border: 2px solid rgba(226,223,223,0.9);
+  color: var(--text);
+  border-radius: 6px;
+  padding: .25rem .5rem;
+}
+.btn-secondary-soft:hover,
+.btn-secondary-soft:focus,
+.btn-secondary-soft:focus-visible{
+  background: var(--sage) !important;
+  border-color: #9ab7a3 !important;
+  color: var(--sageDeep) !important;
+  box-shadow: none !important;
+}
+
+.btn-sage{
+  background: var(--sageDeep);
+  border: none;
+  color: #fff;
+  border-radius: 12px;
+}
+.btn-sage:hover{ background: #5f8b73; }
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  padding:.25rem .6rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#fff;
+  font-size:.85rem;
+}
+
+.kbd{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background:#fff;
+  border:1px solid var(--border);
+  border-bottom-width:2px;
+  border-radius:8px;
+  padding:.05rem .4rem;
+}
+
+/* Task rows + progress pill styling are in JS-rendered markup */
+.task-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding: .65rem .25rem;
+  border-bottom: 1px dashed var(--border);
+}
+.task-left{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  flex: 1;
+  min-width: 0;
+}
+.task-title{
+  font-weight: 520;
+  word-break: break-word;
+}
+.task-title.done{
+  text-decoration: line-through;
+  opacity: .6;
+}
+.task-meta{
+  font-size:.85rem;
+  color:#6a6a6a;
+}
+.task-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+.icon-btn{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius: 12px;
+  padding: .25rem .5rem;
+  font-size:.85rem;
+}
+.icon-btn:hover{ background:#fff7f9; }
+
+.empty-emoji{ font-size: 2rem; }
+
+/* Progress pill (no numbers) */
+.progress-pill {
+  width: 92px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--sage), var(--sageDeep));
+  border-radius: 999px;
+  transition: width 200ms ease;
+  opacity: 0.9;
+}
+.progress-label {
+  font-size: 0.8rem;
+  color: #6a6a6a;
+}
+
+/* Week mini-card styling inside the weeks accordion */
+#weeksAccordion .accordion-item {
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+  overflow: hidden;
+}
+
+#weeksAccordion .accordion-button {
+  background: transparent;
+  border: 0;
+  padding: .65rem 1rem;
+}
+
+#weeksAccordion .accordion-body {
+  padding: .6rem 1rem .9rem 1rem;
+  background: transparent;
+}
+
+#weeksAccordion .accordion-item:last-child { margin-bottom: 0; }
+
+/* Subtle styling for Dashboard Overdue accordion */
+#dashboardOverdueAccordion .accordion-item {
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(243,247,243,0.6), rgba(255,255,255,0.6));
+  border: 1px solid rgba(224,231,224,0.9);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.02);
+  overflow: hidden;
+}
+
+#dashboardOverdueAccordion .accordion-button {
+  background: transparent;
+  border: 0;
+  padding: .5rem .75rem;
+  color: #495057;
+}
+
+#dashboardOverdueAccordion .accordion-body {
+  padding: .45rem .75rem .7rem .75rem;
+  background: transparent;
+}
+
+.badge.overdue-count {
+  background: rgba(111,156,132,0.12);
+  color: var(--sageDeep);
+  border: 1px solid rgba(111,156,132,0.18);
+  font-weight: 600;
+}
+
+/* Styling for "Due This Week" accordion to match Overdue header and
+   override Bootstrap's expanded-button blue background for dashboard accordions. */
+#dashboardThisWeekAccordion .accordion-item,
+#dashboardDueTodayAccordion .accordion-item,
+#dashboardNextWeekAccordion .accordion-item {
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(243,247,243,0.6), rgba(255,255,255,0.6));
+  border: 1px solid rgba(224,231,224,0.9);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.02);
+  overflow: hidden;
+}
+
+/* Dashboard count badges: make ALL counts match the Overdue pill */
+.badge.overdue-count,
+.badge.thisweek-count,
+.badge.today-count,
+.badge.nextweek-count{
+  background: rgba(111,156,132,0.12) !important;
+  color: var(--sageDeep) !important;
+  border: 1px solid rgba(111,156,132,0.18) !important;
+  font-weight: 600 !important;
+}
+
+/* Keep header subdued when collapsed and when expanded (override bootstrap) */
+#dashboardOverdueAccordion .accordion-button:not(.collapsed),
+#dashboardThisWeekAccordion .accordion-button:not(.collapsed),
+#dashboardDueTodayAccordion .accordion-button:not(.collapsed),
+#dashboardNextWeekAccordion .accordion-button:not(.collapsed) {
+  background: linear-gradient(180deg, rgba(243,247,243,0.6), rgba(255,255,255,0.6)) !important;
+  color: #495057 !important;
+  box-shadow: none !important;
+}
+#dashboardThisWeekAccordion .accordion-button,
+#dashboardDueTodayAccordion .accordion-button,
+#dashboardNextWeekAccordion .accordion-button {
+  background: transparent;
+  border: 0;
+  padding: .5rem .75rem;
+  color: #495057;
+}
+#dashboardThisWeekAccordion .accordion-body,
+#dashboardDueTodayAccordion .accordion-body,
+#dashboardNextWeekAccordion .accordion-body {
+  padding: .45rem .75rem .7rem .75rem;
+  background: transparent;
+}
+
+.badge.thisweek-count {
+  background: rgba(111,156,132,0.12);
+  color: var(--sageDeep);
+  border: 1px solid rgba(111,156,132,0.18);
+  font-weight: 600;
+}
