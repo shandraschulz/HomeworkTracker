@@ -1,6 +1,9 @@
 # Frontend Dockerfile (Nginx-based)
 FROM nginx:alpine
 
+# Install curl for healthcheck (wget not available in nginx:alpine)
+RUN apk add --no-cache curl
+
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
@@ -15,8 +18,8 @@ COPY tracker.js /usr/share/nginx/html/tracker.js
 # Expose port
 EXPOSE 80
 
-# Health check
+# Health check using curl
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
+    CMD curl -f http://localhost/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
