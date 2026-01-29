@@ -53,14 +53,11 @@ A dockerized homework tracking application with a FastAPI backend, PostgreSQL da
 ### Production Deployment (Portainer + Traefik)
 
 1. **Prerequisites:**
-   - Traefik running with Cloudflare DNS challenge configured
-   - External Docker network named `traefik-proxy`
-   - Cloudflare tunnel pointing to your Traefik instance
+   - Traefik running (from your homelab docker-compose)
+   - External Docker network named `traefik`
+   - Cloudflare tunnel configured for your domain
 
-2. **Create the Traefik network (if not exists):**
-   ```bash
-   docker network create traefik-proxy
-   ```
+2. **The `traefik` network should already exist from your homelab setup.**
 
 3. **Configure environment:**
    ```bash
@@ -71,16 +68,22 @@ A dockerized homework tracking application with a FastAPI backend, PostgreSQL da
 4. **Update `.env` with your settings:**
    ```env
    POSTGRES_PASSWORD=your_strong_password_here
-   DOMAIN=homework.yourdomain.com
-   ALLOWED_ORIGINS=https://homework.yourdomain.com
+   DOMAIN=homework.jkbell.net
+   ALLOWED_ORIGINS=https://homework.jkbell.net
    ```
 
 5. **Deploy via Portainer:**
-   - Add as a new Stack
-   - Use `docker-compose.prod.yml`
+   - Add as a new Stack in Portainer
+   - Upload or paste `docker-compose.prod.yml`
    - Add environment variables from `.env`
 
-6. **Or deploy via command line:**
+6. **Configure Cloudflare Tunnel:**
+   In your Cloudflare Zero Trust dashboard, add a public hostname:
+   - Subdomain: `homework`
+   - Domain: `jkbell.net`  
+   - Service: `http://traefik:80`
+
+7. **Or deploy via command line:**
    ```bash
    docker-compose -f docker-compose.prod.yml up -d --build
    ```

@@ -52,47 +52,25 @@ services:
     restart: always
     networks:
       - homework-internal
-      - traefik-proxy  # External network for Traefik
+      - traefik  # External network for Traefik (matches homelab)
     depends_on:
       - backend
     labels:
       # Enable Traefik for this service
       - "traefik.enable=true"
       
-      # HTTP Router - redirect to HTTPS
-      - "traefik.http.routers.homework-http.rule=Host(`${DOMAIN:-homework.yourdomain.com}`)"
-      - "traefik.http.routers.homework-http.entrypoints=web"
-      - "traefik.http.routers.homework-http.middlewares=https-redirect@docker"
-      
-      # HTTPS Router
-      - "traefik.http.routers.homework.rule=Host(`${DOMAIN:-homework.yourdomain.com}`)"
-      - "traefik.http.routers.homework.entrypoints=websecure"
-      - "traefik.http.routers.homework.tls=true"
-      - "traefik.http.routers.homework.tls.certresolver=cloudflare"
+      # HTTP Router (Cloudflare tunnel handles SSL termination)
+      - "traefik.http.routers.homework.rule=Host(`${DOMAIN:-homework.jkbell.net}`)"
+      - "traefik.http.routers.homework.entrypoints=web"
       
       # Service definition
       - "traefik.http.services.homework.loadbalancer.server.port=80"
-      
-      # Security headers middleware
-      - "traefik.http.middlewares.homework-headers.headers.stsSeconds=31536000"
-      - "traefik.http.middlewares.homework-headers.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.homework-headers.headers.stsPreload=true"
-      - "traefik.http.middlewares.homework-headers.headers.forceSTSHeader=true"
-      - "traefik.http.middlewares.homework-headers.headers.contentTypeNosniff=true"
-      - "traefik.http.middlewares.homework-headers.headers.browserXssFilter=true"
-      - "traefik.http.middlewares.homework-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
-      - "traefik.http.middlewares.homework-headers.headers.frameDeny=true"
-      
-      # Apply security headers to HTTPS router
-      - "traefik.http.routers.homework.middlewares=homework-headers@docker"
-      
-      # Docker network for Traefik
-      - "traefik.docker.network=traefik-proxy"
 
 networks:
   homework-internal:
     driver: bridge
-  traefik-proxy:
+  traefik:
+    name: traefik
     external: true
 
 volumes:
