@@ -1,0 +1,99 @@
+# Docker Compose for PRODUCTION
+# Designed for Portainer deployment behind Traefik reverse proxy with Cloudflare tunnel
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: homework-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-homework}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-homework_tracker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - homework-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-homework} -d ${POSTGRES_DB:-homework_tracker}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # No external ports - only accessible within docker network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: homework-backend
+    restart: always
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homework}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-homework_tracker}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://homework.yourdomain.com}
+    networks:
+      - homework-internal
+    depends_on:
+      db:
+        condition: service_healthy
+    # No external ports - only accessible via frontend nginx proxy
+
+  # Nginx Frontend with Traefik labels
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: homework-frontend
+    restart: always
+    networks:
+      - homework-internal
+      - traefik-proxy  # External network for Traefik
+    depends_on:
+      - backend
+    labels:
+      # Enable Traefik for this service
+      - "traefik.enable=true"
+      
+      # HTTP Router - redirect to HTTPS
+      - "traefik.http.routers.homework-http.rule=Host(`${DOMAIN:-homework.yourdomain.com}`)"
+      - "traefik.http.routers.homework-http.entrypoints=web"
+      - "traefik.http.routers.homework-http.middlewares=https-redirect@docker"
+      
+      # HTTPS Router
+      - "traefik.http.routers.homework.rule=Host(`${DOMAIN:-homework.yourdomain.com}`)"
+      - "traefik.http.routers.homework.entrypoints=websecure"
+      - "traefik.http.routers.homework.tls=true"
+      - "traefik.http.routers.homework.tls.certresolver=cloudflare"
+      
+      # Service definition
+      - "traefik.http.services.homework.loadbalancer.server.port=80"
+      
+      # Security headers middleware
+      - "traefik.http.middlewares.homework-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.homework-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.homework-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.homework-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.homework-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.homework-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.homework-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.homework-headers.headers.frameDeny=true"
+      
+      # Apply security headers to HTTPS router
+      - "traefik.http.routers.homework.middlewares=homework-headers@docker"
+      
+      # Docker network for Traefik
+      - "traefik.docker.network=traefik-proxy"
+
+networks:
+  homework-internal:
+    driver: bridge
+  traefik-proxy:
+    external: true
+
+volumes:
+  postgres_data:
