@@ -63,8 +63,8 @@ networks:
   homework-internal:
     driver: bridge
   traefik:
-    name: traefik
     external: true
+    name: traefik
 
 volumes:
   postgres_data:
